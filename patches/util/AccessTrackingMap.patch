@@ -1,0 +1,158 @@
+--- AccessTrackingMap.java	2025-07-15 01:50:32.000000000 +0800
++++ AccessTrackingMap.java	2025-07-15 02:03:36.552758504 +0800
+@@ -5,30 +5,28 @@
+ import java.util.HashSet;
+ import java.util.Map;
+ import java.util.Set;
+-import java.util.Map.Entry;
+ import java.util.function.BiConsumer;
+ import java.util.function.BiFunction;
+ import java.util.function.Function;
+ 
+ public class AccessTrackingMap<K, V> implements Map<K, V> {
+-
+     private final Map<K, V> map = new HashMap();
+     private final Set<V> seen = new HashSet();
+ 
+-    public AccessTrackingMap() {}
+-
+-    public V get(Object object) {
+-        Object object1 = this.map.get(object);
++    public AccessTrackingMap() {
++    }
+ 
+-        if (object1 != null) {
+-            this.seen.add(object1);
++    public V get(Object key) {
++        V val = this.map.get(key);
++        if (val != null) {
++            this.seen.add(val);
+         }
+ 
+-        return object1;
++        return val;
+     }
+ 
+-    public boolean isSeen(V v0) {
+-        return this.seen.contains(v0);
++    public boolean isSeen(V val) {
++        return this.seen.contains(val);
+     }
+ 
+     public int size() {
+@@ -39,24 +37,24 @@
+         return this.map.isEmpty();
+     }
+ 
+-    public boolean containsKey(Object object) {
+-        return this.map.containsKey(object);
++    public boolean containsKey(Object arg0) {
++        return this.map.containsKey(arg0);
+     }
+ 
+-    public boolean containsValue(Object object) {
+-        return this.map.containsValue(object);
++    public boolean containsValue(Object arg0) {
++        return this.map.containsValue(arg0);
+     }
+ 
+-    public V put(K k0, V v0) {
+-        return this.map.put(k0, v0);
++    public V put(K arg0, V arg1) {
++        return this.map.put(arg0, arg1);
+     }
+ 
+-    public V remove(Object object) {
+-        return this.map.remove(object);
++    public V remove(Object arg0) {
++        return this.map.remove(arg0);
+     }
+ 
+-    public void putAll(Map<? extends K, ? extends V> map) {
+-        this.map.putAll(map);
++    public void putAll(Map<? extends K, ? extends V> arg0) {
++        this.map.putAll(arg0);
+     }
+ 
+     public void clear() {
+@@ -71,56 +69,55 @@
+         return this.map.values();
+     }
+ 
+-    public Set<Entry<K, V>> entrySet() {
++    public Set<Map.Entry<K, V>> entrySet() {
+         return this.map.entrySet();
+     }
+ 
+-    public V getOrDefault(Object object, V v0) {
+-        return this.map.getOrDefault(object, v0);
++    public V getOrDefault(Object key, V defaultValue) {
++        return this.map.getOrDefault(key, defaultValue);
+     }
+ 
+-    public void forEach(BiConsumer<? super K, ? super V> biconsumer) {
+-        this.map.forEach(biconsumer);
++    public void forEach(BiConsumer<? super K, ? super V> action) {
++        this.map.forEach(action);
+     }
+ 
+-    public void replaceAll(BiFunction<? super K, ? super V, ? extends V> bifunction) {
+-        this.map.replaceAll(bifunction);
++    public void replaceAll(BiFunction<? super K, ? super V, ? extends V> function) {
++        this.map.replaceAll(function);
+     }
+ 
+-    public V putIfAbsent(K k0, V v0) {
+-        return this.map.putIfAbsent(k0, v0);
++    public V putIfAbsent(K key, V value) {
++        return this.map.putIfAbsent(key, value);
+     }
+ 
+-    public boolean remove(Object object, Object object1) {
+-        return this.map.remove(object, object1);
++    public boolean remove(Object key, Object value) {
++        return this.map.remove(key, value);
+     }
+ 
+-    public boolean replace(K k0, V v0, V v1) {
+-        return this.map.replace(k0, v0, v1);
++    public boolean replace(K key, V oldValue, V newValue) {
++        return this.map.replace(key, oldValue, newValue);
+     }
+ 
+-    public V replace(K k0, V v0) {
+-        return this.map.replace(k0, v0);
++    public V replace(K key, V value) {
++        return this.map.replace(key, value);
+     }
+ 
+-    public V computeIfAbsent(K k0, Function<? super K, ? extends V> function) {
+-        return this.map.computeIfAbsent(k0, function);
++    public V computeIfAbsent(K key, Function<? super K, ? extends V> mappingFunction) {
++        return this.map.computeIfAbsent(key, mappingFunction);
+     }
+ 
+-    public V computeIfPresent(K k0, BiFunction<? super K, ? super V, ? extends V> bifunction) {
+-        return this.map.computeIfPresent(k0, bifunction);
++    public V computeIfPresent(K key, BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
++        return this.map.computeIfPresent(key, remappingFunction);
+     }
+ 
+-    public V compute(K k0, BiFunction<? super K, ? super V, ? extends V> bifunction) {
+-        return this.map.compute(k0, bifunction);
++    public V compute(K key, BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
++        return this.map.compute(key, remappingFunction);
+     }
+ 
+-    public V merge(K k0, V v0, BiFunction<? super V, ? super V, ? extends V> bifunction) {
+-        return this.map.merge(k0, v0, bifunction);
++    public V merge(K key, V value, BiFunction<? super V, ? super V, ? extends V> remappingFunction) {
++        return this.map.merge(key, value, remappingFunction);
+     }
+ 
+     private interface Exclude<V> {
+-
+-        V get(Object object);
++        V get(Object var1);
+     }
+ }

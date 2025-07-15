@@ -1,0 +1,149 @@
+--- SyntheticFinder.java	2025-07-15 01:50:32.000000000 +0800
++++ SyntheticFinder.java	2025-07-15 02:07:15.216791577 +0800
+@@ -17,72 +17,85 @@
+ import org.objectweb.asm.tree.VarInsnNode;
+ 
+ public final class SyntheticFinder {
++    public static void addSynthetics(ClassNode node, EnhancedRemapper remapper, MappingData mappings) {
++        Iterator var3 = node.methods.iterator();
+ 
+-    public static void addSynthetics(ClassNode classnode, EnhancedRemapper enhancedremapper, MappingData mappingdata) {
+-        Iterator iterator = classnode.methods.iterator();
+-
+-        label86:
+-        while (iterator.hasNext()) {
+-            MethodNode methodnode = (MethodNode) iterator.next();
+-
+-            if ((methodnode.access & 4096) != 0 && (methodnode.access & 64) == 0 && (methodnode.access & 2) == 0 && !methodnode.name.contains("$")) {
+-                AbstractInsnNode abstractinsnnode = null;
+-                UnmodifiableIterator unmodifiableiterator = Iterators.filter(methodnode.instructions.iterator(), new Predicate() {
+-                    public boolean apply(AbstractInsnNode abstractinsnnode) {
+-                        return !(abstractinsnnode instanceof LabelNode) && !(abstractinsnnode instanceof LineNumberNode) && !(abstractinsnnode instanceof TypeInsnNode);
+-                    }
+-
+-                    public boolean apply(Object object) {
+-                        return this.apply((AbstractInsnNode) object);
++        while(true) {
++            label120:
++            while(true) {
++                MethodNode method;
++                Type methodType;
++                Type invokeType;
++                MethodInsnNode invoke;
++                do {
++                    do {
++                        do {
++                            UnmodifiableIterator iter;
++                            do {
++                                AbstractInsnNode insn;
++                                do {
++                                    do {
++                                        do {
++                                            do {
++                                                do {
++                                                    do {
++                                                        do {
++                                                            do {
++                                                                do {
++                                                                    if (!var3.hasNext()) {
++                                                                        return;
++                                                                    }
++
++                                                                    method = (MethodNode)var3.next();
++                                                                } while((method.access & 4096) == 0);
++                                                            } while((method.access & 64) != 0);
++                                                        } while((method.access & 2) != 0);
++                                                    } while(method.name.contains("$"));
++
++                                                    insn = null;
++                                                    iter = Iterators.filter(method.instructions.iterator(), new Predicate<AbstractInsnNode>() {
++                                                        public boolean apply(AbstractInsnNode input) {
++                                                            return !(input instanceof LabelNode) && !(input instanceof LineNumberNode) && !(input instanceof TypeInsnNode);
++                                                        }
++                                                    });
++
++                                                    VarInsnNode load;
++                                                    for(int expected = 0; iter.hasNext() && (insn = (AbstractInsnNode)iter.next()) instanceof VarInsnNode; expected += load.getOpcode() != 22 && load.getOpcode() != 24 ? 1 : 2) {
++                                                        load = (VarInsnNode)insn;
++                                                        if (load.var != expected) {
++                                                            break;
++                                                        }
++                                                    }
++                                                } while(insn == null);
++                                            } while(insn.getOpcode() != 182 && insn.getOpcode() != 185);
++
++                                            invoke = (MethodInsnNode)insn;
++                                            insn = (AbstractInsnNode)iter.next();
++                                        } while(172 > insn.getOpcode());
++                                    } while(insn.getOpcode() > 177);
++                                } while(iter.hasNext());
++                            } while(!node.name.equals(invoke.owner));
++                        } while(method.name.equals(invoke.name));
++                    } while(method.desc.equals(invoke.desc));
++
++                    methodType = Type.getMethodType(method.desc);
++                    invokeType = Type.getMethodType(invoke.desc);
++                } while(methodType.getArgumentTypes().length != invokeType.getArgumentTypes().length);
++
++                Iterator var11 = node.methods.iterator();
++
++                while(var11.hasNext()) {
++                    MethodNode sibling = (MethodNode)var11.next();
++                    if (method.name.equals(sibling.name) && invoke.desc.equals(sibling.desc) && sibling.signature != null) {
++                        continue label120;
+                     }
+-                });
+-                int i = 0;
+-
+-                while (true) {
+-                    if (unmodifiableiterator.hasNext() && (abstractinsnnode = (AbstractInsnNode) unmodifiableiterator.next()) instanceof VarInsnNode) {
+-                        VarInsnNode varinsnnode = (VarInsnNode) abstractinsnnode;
+-
+-                        if (varinsnnode1.var == i) {
+-                            i += varinsnnode2.getOpcode() != 22 && varinsnnode3.getOpcode() != 24 ? 1 : 2;
+-                            continue;
+-                        }
+-                    }
+-
+-                    if (abstractinsnnode == null || abstractinsnnode.getOpcode() != 182 && abstractinsnnode.getOpcode() != 185) {
+-                        break;
+-                    }
+-
+-                    MethodInsnNode methodinsnnode = (MethodInsnNode) abstractinsnnode;
+-
+-                    abstractinsnnode = (AbstractInsnNode) unmodifiableiterator.next();
+-                    if (172 > abstractinsnnode.getOpcode() || abstractinsnnode.getOpcode() > 177 || unmodifiableiterator.hasNext() || !classnode.name.equals(methodinsnnode.owner) || methodnode.name.equals(methodinsnnode.name) || methodnode.desc.equals(methodinsnnode.desc)) {
+-                        break;
+-                    }
+-
+-                    Type type = Type.getMethodType(methodnode.desc);
+-                    Type type1 = Type.getMethodType(methodinsnnode.desc);
+-
+-                    if (type.getArgumentTypes().length != type1.getArgumentTypes().length) {
+-                        break;
+-                    }
+-
+-                    Iterator iterator1 = classnode.methods.iterator();
+-
+-                    while (iterator1.hasNext()) {
+-                        MethodNode methodnode1 = (MethodNode) iterator1.next();
+-
+-                        if (methodnode.name.equals(methodnode1.name) && methodinsnnode.desc.equals(methodnode1.desc) && methodnode1.signature != null) {
+-                            continue label86;
+-                        }
+-                    }
+-
+-                    mappingdata.addMethodMap(methodinsnnode.owner, methodinsnnode.name, methodinsnnode.desc, methodnode.name);
+-                    break;
+                 }
++
++                mappings.addMethodMap(invoke.owner, invoke.name, invoke.desc, method.name);
+             }
+         }
+-
+     }
+ 
+-    private SyntheticFinder() {}
++    private SyntheticFinder() {
++    }
+ }

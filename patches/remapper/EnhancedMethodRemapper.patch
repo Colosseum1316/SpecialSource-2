@@ -1,0 +1,124 @@
+--- EnhancedMethodRemapper.java	2025-07-15 01:50:32.000000000 +0800
++++ EnhancedMethodRemapper.java	2025-07-15 01:56:30.614640901 +0800
+@@ -11,81 +11,72 @@
+ import org.objectweb.asm.commons.MethodRemapper;
+ 
+ public class EnhancedMethodRemapper extends MethodRemapper {
+-
+-    private static final Collection<Handle> META_FACTORIES = Arrays.asList(new Handle[] { new Handle(6, "java/lang/invoke/LambdaMetafactory", "metafactory", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;", false), new Handle(6, "java/lang/invoke/LambdaMetafactory", "altMetafactory", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;", false)});
++    private static final Collection<Handle> META_FACTORIES = Arrays.asList(new Handle(6, "java/lang/invoke/LambdaMetafactory", "metafactory", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;", false), new Handle(6, "java/lang/invoke/LambdaMetafactory", "altMetafactory", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;", false));
+     private final EnhancedRemapper remapper;
+     private final int methodAccess;
+     private final boolean enumConstructor;
+ 
+-    public EnhancedMethodRemapper(MethodVisitor methodvisitor, EnhancedRemapper enhancedremapper, int i, boolean flag) {
+-        super(methodvisitor, enhancedremapper);
+-        this.remapper = enhancedremapper;
+-        this.methodAccess = i;
+-        this.enumConstructor = flag;
++    public EnhancedMethodRemapper(MethodVisitor methodVisitor, EnhancedRemapper remapper, int methodAccess, boolean enumConstructor) {
++        super(methodVisitor, remapper);
++        this.remapper = remapper;
++        this.methodAccess = methodAccess;
++        this.enumConstructor = enumConstructor;
+     }
+ 
+-    public AnnotationVisitor visitParameterAnnotation(int i, String s, boolean flag) {
+-        return this.enumConstructor ? null : super.visitParameterAnnotation(i, s, flag);
++    public AnnotationVisitor visitParameterAnnotation(int parameter, String descriptor, boolean visible) {
++        return this.enumConstructor ? null : super.visitParameterAnnotation(parameter, descriptor, visible);
+     }
+ 
+-    public void visitLocalVariable(String s, String s1, String s2, Label label, Label label1, int i) {
+-        switch (null.$SwitchMap$net$md_5$ss$remapper$EnhancedMethodRemapper$LVTStyle[this.remapper.getLvtStyle().ordinal()]) {
+-        case 1:
+-            if (Modifier.isStatic(this.methodAccess)) {
+-                s = "var" + i;
+-            } else {
+-                s = i == 0 ? "this" : "var" + (i - 1);
+-            }
+-
+-        case 2:
+-            super.visitLocalVariable(s, s1, s2, label, label1, i);
+-            return;
+-
+-        default:
+-            throw new IllegalArgumentException("Cannot map LVT in style " + this.remapper.getLvtStyle());
++    public void visitLocalVariable(String name, String descriptor, String signature, Label start, Label end, int index) {
++        switch (this.remapper.getLvtStyle()) {
++            case BASIC:
++                if (Modifier.isStatic(this.methodAccess)) {
++                    name = "var" + index;
++                } else {
++                    name = index == 0 ? "this" : "var" + (index - 1);
++                }
++            case NONE:
++                super.visitLocalVariable(name, descriptor, signature, start, end, index);
++                return;
++            default:
++                throw new IllegalArgumentException("Cannot map LVT in style " + this.remapper.getLvtStyle());
+         }
+     }
+ 
+-    public void visitInvokeDynamicInsn(String s, String s1, Handle handle, Object... aobject) {
+-        if (EnhancedMethodRemapper.META_FACTORIES.contains(handle)) {
+-            String s2 = Type.getReturnType(s1).getInternalName();
+-            String s3 = ((Type) aobject[0]).getDescriptor();
+-
+-            s = this.remapper.mapMethodName(s2, s, s3);
++    public void visitInvokeDynamicInsn(String name, String descriptor, Handle bootstrapMethodHandle, Object... bootstrapMethodArguments) {
++        if (META_FACTORIES.contains(bootstrapMethodHandle)) {
++            String owner = Type.getReturnType(descriptor).getInternalName();
++            String odesc = ((Type)bootstrapMethodArguments[0]).getDescriptor();
++            name = this.remapper.mapMethodName(owner, name, odesc);
+         } else {
+-            s = this.remapper.mapInvokeDynamicMethodName(s, s1);
++            name = this.remapper.mapInvokeDynamicMethodName(name, descriptor);
+         }
+ 
+         int i;
++        if (bootstrapMethodHandle.getOwner().equals("java/lang/runtime/ObjectMethods")) {
++            Type clazz = (Type)bootstrapMethodArguments[0];
+ 
+-        if (handle.getOwner().equals("java/lang/runtime/ObjectMethods")) {
+-            Type type = (Type) aobject[0];
+-
+-            for (i = 2; i < aobject.length; ++i) {
+-                Handle handle1 = (Handle) aobject[i];
+-                String s4 = this.remapper.mapFieldName(type.getInternalName(), handle1.getName(), handle1.getDesc(), 0);
+-
+-                aobject[i] = new Handle(handle1.getTag(), handle1.getOwner(), s4, handle1.getDesc(), handle1.isInterface());
++            for(i = 2; i < bootstrapMethodArguments.length; ++i) {
++                Handle h = (Handle)bootstrapMethodArguments[i];
++                String newName = this.remapper.mapFieldName(clazz.getInternalName(), h.getName(), h.getDesc(), 0);
++                bootstrapMethodArguments[i] = new Handle(h.getTag(), h.getOwner(), newName, h.getDesc(), h.isInterface());
+             }
+         }
+ 
+-        Object[] aobject1 = new Object[aobject.length];
++        Object[] remappedBootstrapMethodArguments = new Object[bootstrapMethodArguments.length];
+ 
+-        for (i = 0; i < aobject.length; ++i) {
+-            aobject1[i] = this.remapper.mapValue(aobject[i]);
++        for(i = 0; i < bootstrapMethodArguments.length; ++i) {
++            remappedBootstrapMethodArguments[i] = this.remapper.mapValue(bootstrapMethodArguments[i]);
+         }
+ 
+-        this.mv.visitInvokeDynamicInsn(s, this.remapper.mapMethodDesc(s1), (Handle) this.remapper.mapValue(handle), aobject1);
++        this.mv.visitInvokeDynamicInsn(name, this.remapper.mapMethodDesc(descriptor), (Handle)this.remapper.mapValue(bootstrapMethodHandle), remappedBootstrapMethodArguments);
+     }
+ 
+     public static enum LVTStyle {
++        NONE,
++        BASIC;
+ 
+-        NONE, BASIC;
+-
+-        private LVTStyle() {}
+-
+-        private static EnhancedMethodRemapper.LVTStyle[] $values() {
+-            return new EnhancedMethodRemapper.LVTStyle[] { EnhancedMethodRemapper.LVTStyle.NONE, EnhancedMethodRemapper.LVTStyle.BASIC};
++        private LVTStyle() {
+         }
+     }
+ }

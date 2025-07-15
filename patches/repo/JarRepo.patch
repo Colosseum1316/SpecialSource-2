@@ -1,0 +1,238 @@
+--- JarRepo.java	2025-07-15 01:50:32.000000000 +0800
++++ JarRepo.java	2025-07-15 01:58:30.071331674 +0800
+@@ -15,122 +15,107 @@
+ import org.objectweb.asm.tree.ClassNode;
+ 
+ public class JarRepo extends ClassRepo {
+-
+     private final JarFile jar;
+ 
+-    protected ClassInfo getClass0(String s) throws IOException {
+-        String s1 = "";
+-
+-        if (s.startsWith("META-INF/versions/")) {
+-            String[] astring = s.split("/", 4);
+-
+-            s1 = astring[0] + "/" + astring[1] + "/" + astring[2] + "/";
++    protected ClassInfo getClass0(String internalName) throws IOException {
++        String versionBase = "";
++        if (internalName.startsWith("META-INF/versions/")) {
++            String[] split = internalName.split("/", 4);
++            versionBase = split[0] + "/" + split[1] + "/" + split[2] + "/";
+         }
+ 
+-        JarEntry jarentry = this.jar.getJarEntry(s + ".class");
+-
+-        if (jarentry != null) {
+-            InputStream inputstream = this.jar.getInputStream(jarentry);
+-
+-            ClassInfo classinfo;
++        JarEntry entry = this.jar.getJarEntry(internalName + ".class");
++        if (entry != null) {
++            InputStream is = this.jar.getInputStream(entry);
+ 
++            ClassInfo var7;
+             try {
+-                ClassReader classreader = new ClassReader(inputstream);
+-                ClassNode classnode = new ClassNode();
+-
+-                classreader.accept(classnode, 0);
+-                classinfo = new ClassInfo(this, classreader, classnode, s1);
+-            } catch (Throwable throwable) {
+-                if (inputstream != null) {
++                ClassReader cr = new ClassReader(is);
++                ClassNode node = new ClassNode();
++                cr.accept(node, 0);
++                var7 = new ClassInfo(this, cr, node, versionBase);
++            } catch (Throwable var10) {
++                if (is != null) {
+                     try {
+-                        inputstream.close();
+-                    } catch (Throwable throwable1) {
+-                        Throwable throwable2 = throwable;
+-                        Throwable throwable3 = throwable1;
++                        is.close();
++                    } catch (Throwable var9) {
++                        Throwable var10000 = var10;
++                        Throwable var10001 = var9;
+ 
+                         try {
+-                            throwable2.addSuppressed(throwable3);
+-                        } catch (NoSuchMethodError nosuchmethoderror) {
+-                            ;
++                            var10000.addSuppressed(var10001);
++                        } catch (NoSuchMethodError var8) {
+                         }
+                     }
+                 }
+ 
+-                throw throwable;
++                throw var10;
+             }
+ 
+-            if (inputstream != null) {
+-                inputstream.close();
++            if (is != null) {
++                is.close();
+             }
+ 
+-            return classinfo;
++            return var7;
+         } else {
+             return null;
+         }
+     }
+ 
+     public Iterator<ItemInfo> iterator() {
+-        final Enumeration enumeration = this.jar.entries();
+-
+-        return new AbstractIterator() {
++        final Enumeration<JarEntry> entries = this.jar.entries();
++        return new AbstractIterator<ItemInfo>() {
+             protected ItemInfo computeNext() {
+-                if (!enumeration.hasMoreElements()) {
+-                    return (ItemInfo) this.endOfData();
++                if (!entries.hasMoreElements()) {
++                    return (ItemInfo)this.endOfData();
+                 } else {
+-                    JarEntry jarentry = (JarEntry) enumeration.nextElement();
+-                    String s = jarentry.getName();
+-
+-                    if (s.endsWith(".class")) {
+-                        String s1 = s.substring(0, s.length() - ".class".length());
+-
+-                        return JarRepo.this.getClass(s1);
++                    JarEntry entry = (JarEntry)entries.nextElement();
++                    String name = entry.getName();
++                    if (name.endsWith(".class")) {
++                        String internalName = name.substring(0, name.length() - ".class".length());
++                        return JarRepo.this.getClass(internalName);
+                     } else {
+-                        byte[] abyte;
+-
++                        byte[] data;
+                         try {
+-                            InputStream inputstream = JarRepo.this.jar.getInputStream(jarentry);
++                            InputStream is = JarRepo.this.jar.getInputStream(entry);
+ 
+                             try {
+-                                abyte = ByteStreams.toByteArray(inputstream);
+-                            } catch (Throwable throwable) {
+-                                if (inputstream != null) {
++                                data = ByteStreams.toByteArray(is);
++                            } catch (Throwable var9) {
++                                if (is != null) {
+                                     try {
+-                                        inputstream.close();
+-                                    } catch (Throwable throwable1) {
+-                                        Throwable throwable2 = throwable;
+-                                        Throwable throwable3 = throwable1;
++                                        is.close();
++                                    } catch (Throwable var8) {
++                                        Throwable var10000 = var9;
++                                        Throwable var10001 = var8;
+ 
+                                         try {
+-                                            throwable2.addSuppressed(throwable3);
+-                                        } catch (NoSuchMethodError nosuchmethoderror) {
+-                                            ;
++                                            var10000.addSuppressed(var10001);
++                                        } catch (NoSuchMethodError var7) {
+                                         }
+                                     }
+                                 }
+ 
+-                                throw throwable;
++                                throw var9;
+                             }
+ 
+-                            if (inputstream != null) {
+-                                inputstream.close();
++                            if (is != null) {
++                                is.close();
+                             }
+-                        } catch (IOException ioexception) {
+-                            throw new RuntimeException(ioexception);
++                        } catch (IOException var10) {
++                            IOException ex = var10;
++                            throw new RuntimeException(ex);
+                         }
+ 
+-                        return new Resource(jarentry.getName(), abyte);
++                        return new Resource(entry.getName(), data);
+                     }
+                 }
+             }
+-
+-            protected Object computeNext() {
+-                return this.computeNext();
+-            }
+         };
+     }
+ 
+-    public JarRepo(JarFile jarfile) {
+-        this.jar = jarfile;
++    public JarRepo(JarFile jar) {
++        this.jar = jar;
+     }
+ 
+     public JarFile getJar() {
+@@ -141,25 +126,23 @@
+         return "JarRepo(jar=" + this.getJar() + ")";
+     }
+ 
+-    public boolean equals(Object object) {
+-        if (object == this) {
++    public boolean equals(Object o) {
++        if (o == this) {
+             return true;
+-        } else if (!(object instanceof JarRepo)) {
++        } else if (!(o instanceof JarRepo)) {
+             return false;
+         } else {
+-            JarRepo jarrepo = (JarRepo) object;
+-
+-            if (!jarrepo.canEqual(this)) {
++            JarRepo other = (JarRepo)o;
++            if (!other.canEqual(this)) {
+                 return false;
+             } else {
+-                JarFile jarfile = this.getJar();
+-                JarFile jarfile1 = jarrepo.getJar();
+-
+-                if (jarfile == null) {
+-                    if (jarfile1 != null) {
++                Object this$jar = this.getJar();
++                Object other$jar = other.getJar();
++                if (this$jar == null) {
++                    if (other$jar != null) {
+                         return false;
+                     }
+-                } else if (!jarfile.equals(jarfile1)) {
++                } else if (!this$jar.equals(other$jar)) {
+                     return false;
+                 }
+ 
+@@ -168,16 +151,14 @@
+         }
+     }
+ 
+-    protected boolean canEqual(Object object) {
+-        return object instanceof JarRepo;
++    protected boolean canEqual(Object other) {
++        return other instanceof JarRepo;
+     }
+ 
+     public int hashCode() {
+-        boolean flag = true;
+-        byte b0 = 1;
+-        JarFile jarfile = this.getJar();
+-        int i = b0 * 59 + (jarfile == null ? 43 : jarfile.hashCode());
+-
+-        return i;
++        int result = 1;
++        Object $jar = this.getJar();
++        result = result * 59 + ($jar == null ? 43 : $jar.hashCode());
++        return result;
+     }
+ }
