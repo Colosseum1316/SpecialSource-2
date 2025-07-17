@@ -18,7 +18,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>20.0</version>
+            <version>33.0.0-jre</version>
         </dependency>
         <dependency>
             <groupId>net.sf.jopt-simple</groupId>
@@ -28,7 +28,7 @@
         <dependency>
             <groupId>org.apache.bcel</groupId>
             <artifactId>bcel</artifactId>
-            <version>6.5.0</version>
+            <version>6.7.0</version>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
@@ -76,6 +76,24 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <artifactSet>
+                        <excludes>
+                            <exclude>com.google.code.findbugs:jsr305</exclude>
+                            <exclude>com.google.errorprone:error_prone_annotations</exclude>
+                            <exclude>com.google.j2objc:j2objc-annotations</exclude>
+                            <exclude>org.checkerframework:checker-qual</exclude>
+                            <exclude>javax.annotation.*</exclude>
+                        </excludes>
+                    </artifactSet>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/maven/${project.groupId}/**</exclude>
+                                <exclude>META-INF/proguard/**</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                     <shadedArtifactAttached>false</shadedArtifactAttached>
                 </configuration>
