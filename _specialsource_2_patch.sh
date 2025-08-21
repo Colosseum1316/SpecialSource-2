@@ -13,17 +13,12 @@ if [[ ! -d "${decompilation_dir}" ]]; then
   exit 1
 fi
 
-patch=$(which patch 2>/dev/null)
-if [[ "x$patch" == "x" ]]; then
-  patch="${WORKING_DIR}/Panda/base/hctap.exe"
-fi
-
 function patchdirs {
   local patch_work_dir="$1"
   local patches_dir="$2"
   for _patch in $(ls $patches_dir)
   do
-    "$patch" -d "$patch_work_dir" < "${_patch}"
+    patch -d "$patch_work_dir" < "${_patch}"
   done
 }
 
