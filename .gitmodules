@@ -1,4 +1,0 @@
-[submodule "Panda"]
-	path = Panda
-	url = https://github.com/hpfxd/PandaSpigot.git
-	branch = master
