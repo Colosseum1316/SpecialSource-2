@@ -1,4 +1,7 @@
+## Features
+
+- Java 17+ support.
+
 ## Prerequisites
 
-- Java 17 and above.
 - Do (de)compilation on your own!
