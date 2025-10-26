@@ -1,6 +1,7 @@
 ## Features
 
-- Java 17+ support.
+- Java 17+ support
+  - Tested on 17, 21.
 
 ## Prerequisites
 
