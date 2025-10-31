@@ -37,9 +37,17 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - uses: actions/cache@v4
+        with:
+          path: ./tmp
+          key: java-${{ matrix.java-version }}-tmp-${{ github.repository }}-${{ hashFiles('patches/**/*.patch') }}
+          restore-keys: |
+            java-${{ matrix.java-version }}-
+
       - uses: actions/setup-java@v4
         with:
           distribution: corretto
           java-version: ${{ matrix.java-version }}
+          cache: maven
 
       - run: ./build.sh
