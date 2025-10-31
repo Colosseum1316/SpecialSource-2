@@ -1,8 +1,7 @@
 ## Features
 
-- Java 17+ support
-  - Tested on 17, 21.
+- Java 8, 11, 17, 21, 25.
 
 ## Prerequisites
 
-- Do (de)compilation on your own!
+- Build your own jar! It's really easy, just do `./build.sh`
