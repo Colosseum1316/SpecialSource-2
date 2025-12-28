@@ -3,8 +3,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>colosseum.minecraft.decompilation</groupId>
-    <name>SpecialSource2</name>
-    <artifactId>SpecialSource2</artifactId>
+    <name>SpecialSource-2</name>
+    <artifactId>SpecialSource-2</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
