@@ -6,6 +6,7 @@ on:
       - "master"
     paths:
       - "patches/**/*.patch"
+      - ".github/workflows/test.yml"
       - "ss2/pom.xml"
       - "*.sh"
       - "!COPYING"
@@ -16,6 +17,7 @@ on:
       - "master"
     paths:
       - "patches/**/*.patch"
+      - ".github/workflows/test.yml"
       - "ss2/pom.xml"
       - "*.sh"
       - "!COPYING"
