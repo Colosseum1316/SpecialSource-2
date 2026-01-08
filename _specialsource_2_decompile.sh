@@ -34,7 +34,7 @@ function ss2_script_download_file {
 }
 
 ss2_script_download_file "fernflower.jar" "https://hub.spigotmc.org/stash/projects/SPIGOT/repos/builddata/raw/bin/fernflower.jar?at=838b40587fa7a68a130b75252959bc8a3481d94f" "29359771a5722c7f45ce723d567a86ae18cba7a72ee6ca7bd785235004aa1610"
-ss2_script_download_file "SpecialSource-2.jar" "https://github.com/hpfxd/PandaSpigot/raw/refs/heads/master/bin/SpecialSource-2.jar" "fc740dbb230c659df710084d0822b4a20d910bf707d6e66f935351bedf4e8bba"
+ss2_script_download_file "SpecialSource-2.jar" "https://github.com/hpfxd/PandaSpigot/raw/984537bbd85e6a531efeb21c0626d0c82da46163/bin/SpecialSource-2.jar" "fc740dbb230c659df710084d0822b4a20d910bf707d6e66f935351bedf4e8bba"
 
 rm -rf "${output_dir}"
 rm -rf "${output_dir}/../target"
