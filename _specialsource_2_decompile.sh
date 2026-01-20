@@ -14,7 +14,7 @@ function ss2_script_download_file {
   local target_url="$2"
   local target_checksum="$3"
   if [[ -f "${wget_dir}/${target_filename}" ]]; then
-    if ! shasum -a 256 --check <<< $(echo "${target_checksum} ${wget_dir}/${target_filename}"); then
+    if ! shasum -a 256 --check <<< $(echo "${target_checksum}  ${wget_dir}/${target_filename}"); then
       rm -rf "${wget_dir}/${target_filename}"
     else
       return
@@ -26,7 +26,7 @@ function ss2_script_download_file {
       echo "Failed to download ${target_filename}!!!"
       exit 1
     fi
-    if ! shasum -a 256 --check <<< $(echo "${target_checksum} ${wget_dir}/${target_filename}"); then
+    if ! shasum -a 256 --check <<< $(echo "${target_checksum}  ${wget_dir}/${target_filename}"); then
       echo "Corrupted file: ${target_filename}"
       exit 1
     fi
