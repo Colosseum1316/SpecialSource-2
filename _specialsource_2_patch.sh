@@ -31,4 +31,4 @@ patchdirs "${WORKING_DIR}/" "${BASE_DIR}/patches/*.patch"
 WORKING_DIR="$1"
 WORKING_DIR="${WORKING_DIR}/ss2"
 cd "$WORKING_DIR"
-mvn -B -V -e -ntp -Dstyle.color=always clean package
+mvn -B -V -e -ntp clean package

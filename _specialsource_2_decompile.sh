@@ -9,16 +9,23 @@ decompilation_dir="${wget_dir}/dec"
 mkdir -p "${decompilation_dir}" || true
 output_dir="${WORKING_DIR}/ss2/src"
 
+uname -a
+
 function ss2_script_download_file {
   local target_filename="$1"
   local target_url="$2"
   local target_checksum="$3"
+  local checksum="$(echo -En "${target_checksum}  ${wget_dir}/${target_filename}")"
+
   if [[ -f "${wget_dir}/${target_filename}" ]]; then
-    if ! shasum -a 256 --check <<< $(echo "${target_checksum}  ${wget_dir}/${target_filename}"); then
+    set -x
+    if ! (echo -En "${checksum}" | shasum -a 256 -c); then
       rm -rf "${wget_dir}/${target_filename}"
     else
+      set +x
       return
     fi
+    set +x
   fi
   if [[ ! -f "${wget_dir}/${target_filename}" ]]; then
     echo "Downloading ${target_filename} from ${target_url}"
@@ -26,10 +33,14 @@ function ss2_script_download_file {
       echo "Failed to download ${target_filename}!!!"
       exit 1
     fi
-    if ! shasum -a 256 --check <<< $(echo "${target_checksum}  ${wget_dir}/${target_filename}"); then
+
+    set -x
+    if ! (echo -En "${checksum}" | shasum -a 256 -c); then
+      set +x
       echo "Corrupted file: ${target_filename}"
       exit 1
     fi
+    set +x
   fi
 }
 
@@ -42,7 +53,7 @@ mkdir -p "${output_dir}/net/md_5/ss"
 
 cd "${decompilation_dir}"
 cp "${wget_dir}/SpecialSource-2.jar" .
-jar xvf SpecialSource-2.jar
+jar xf SpecialSource-2.jar
 rm -rf SpecialSource-2.jar
 rm -rf com
 rm -rf joptsimple
